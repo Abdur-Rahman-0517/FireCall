@@ -212,6 +212,47 @@
       opacity: 0.8;
     }
     
+    .permission-prompt {
+      background: rgba(0, 0, 0, 0.7);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .permission-box {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    
+    .permission-btn {
+      background: linear-gradient(45deg, #2193b0, #6dd5ed);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .permission-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(33, 147, 176, 0.6);
+    }
+    
     @media (max-width: 768px) {
       .video-container {
         flex-direction: column;
@@ -228,7 +269,19 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- Permission Prompt (shown first) -->
+  <div class="permission-prompt" id="permissionPrompt">
+    <div class="permission-box">
+      <h2>FireCall Needs Your Permission</h2>
+      <p>To make video calls, we need access to your camera and microphone.</p>
+      <p>Please allow the permissions when prompted by your browser.</p>
+      <button class="permission-btn" id="requestPermissionBtn">Allow Camera & Microphone</button>
+      <p id="permissionStatus" style="margin-top: 15px;"></p>
+    </div>
+  </div>
+
+  <!-- Main App Content (hidden until permissions granted) -->
+  <div class="container" id="appContent" style="display: none;">
     <header>
       <h1>FireCall Video/Audio</h1>
       <p class="subtitle">Secure peer-to-peer video calls powered by WebRTC and Firebase</p>
@@ -316,6 +369,10 @@
     const statusDisplay = document.getElementById('status');
     const roomIdDisplay = document.getElementById('roomIdDisplay');
     const roomIdSpan = document.getElementById('roomId');
+    const permissionPrompt = document.getElementById('permissionPrompt');
+    const appContent = document.getElementById('appContent');
+    const requestPermissionBtn = document.getElementById('requestPermissionBtn');
+    const permissionStatus = document.getElementById('permissionStatus');
 
     // Peer connection with ICE servers
     const pc = new RTCPeerConnection({
@@ -350,24 +407,63 @@
       }
     };
 
-    // Initialize media
-    async function initMedia() {
+    // Request permission button click handler
+    requestPermissionBtn.addEventListener('click', async () => {
       try {
-        statusDisplay.textContent = 'Accessing your camera and microphone...';
-        localStream = await navigator.mediaDevices.getUserMedia({ 
+        permissionStatus.textContent = 'Requesting permissions...';
+        
+        // Request camera and microphone access
+        const stream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
           audio: true 
         });
+        
+        // Hide permission prompt and show app content
+        permissionPrompt.style.display = 'none';
+        appContent.style.display = 'block';
+        
+        // Initialize local video
+        localVideo.srcObject = stream;
+        localStream = stream;
         
         // Add tracks to peer connection
         localStream.getTracks().forEach(track => {
           pc.addTrack(track, localStream);
         });
         
-        // Set local video stream
-        localVideo.srcObject = localStream;
         statusDisplay.textContent = 'Media ready!';
         
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
+        permissionStatus.textContent = 'Permission denied. Please allow camera and microphone access to use FireCall.';
+        
+        if (error.name === 'NotAllowedError') {
+          permissionStatus.textContent += ' You can refresh the page to try again.';
+        }
+      }
+    });
+
+    // Initialize media (now called after permissions are granted)
+    async function initMedia() {
+      try {
+        statusDisplay.textContent = 'Accessing your camera and microphone...';
+        
+        if (!localStream) {
+          localStream = await navigator.mediaDevices.getUserMedia({ 
+            video: true, 
+            audio: true 
+          });
+          
+          // Add tracks to peer connection
+          localStream.getTracks().forEach(track => {
+            pc.addTrack(track, localStream);
+          });
+          
+          // Set local video stream
+          localVideo.srcObject = localStream;
+        }
+        
+        statusDisplay.textContent = 'Media ready!';
         return true;
       } catch (error) {
         console.error('Error accessing media devices:', error);
@@ -530,4 +626,4 @@
   <!-- Font Awesome for icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
-</html>
+</html> 
