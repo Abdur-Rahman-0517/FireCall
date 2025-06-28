@@ -1,138 +1,533 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FireCall Video/Audio Call</title>
   <style>
-    video {
-      width: 300px;
-      margin: 10px;
-      border: 2px solid orange;
-      border-radius: 8px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    button {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 16px;
+    
+    body {
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      color: white;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      background: linear-gradient(to right, #ff8a00, #da1b60);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .video-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    
+    .video-box {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+    }
+    
+    .video-label {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+      z-index: 10;
+    }
+    
+    video {
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+      background: #000;
+      transform: scaleX(-1);
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    
+    .btn {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      color: white;
+      border: none;
+      padding: 15px 35px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 75, 43, 0.6);
+    }
+    
+    .btn:active {
+      transform: translateY(1px);
+    }
+    
+    .btn-call {
+      background: linear-gradient(45deg, #00b09b, #96c93d);
+      box-shadow: 0 5px 15px rgba(0, 176, 155, 0.4);
+    }
+    
+    .btn-call:hover {
+      box-shadow: 0 8px 20px rgba(0, 176, 155, 0.6);
+    }
+    
+    .btn-join {
+      background: linear-gradient(45deg, #2193b0, #6dd5ed);
+      box-shadow: 0 5px 15px rgba(33, 147, 176, 0.4);
+    }
+    
+    .btn-join:hover {
+      box-shadow: 0 8px 20px rgba(33, 147, 176, 0.6);
+    }
+    
+    .status {
+      text-align: center;
+      margin: 25px 0;
+      font-size: 1.2rem;
+      min-height: 30px;
+    }
+    
+    .room-id {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 20px auto;
+      max-width: 500px;
+      display: none;
+    }
+    
+    .room-id span {
+      font-weight: bold;
+      color: #ffcc00;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+    }
+    
+    .instructions {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 40px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .instructions h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      color: #ffcc00;
+    }
+    
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .step {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    
+    .step-number {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-weight: bold;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      opacity: 0.8;
+    }
+    
+    @media (max-width: 768px) {
+      .video-container {
+        flex-direction: column;
+      }
+      
+      .video-box {
+        max-width: 100%;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>FireCall Video/Audio Call</h2>
-  <video id="localVideo" autoplay muted playsinline></video>
-  <video id="remoteVideo" autoplay playsinline></video>
-  <br />
-  <button onclick="startCall()">Start Call</button>
-  <button onclick="joinCall()">Join Call</button>
+  <div class="container">
+    <header>
+      <h1>FireCall Video/Audio</h1>
+      <p class="subtitle">Secure peer-to-peer video calls powered by WebRTC and Firebase</p>
+    </header>
+    
+    <div class="video-container">
+      <div class="video-box">
+        <div class="video-label">You</div>
+        <video id="localVideo" autoplay muted playsinline></video>
+      </div>
+      
+      <div class="video-box">
+        <div class="video-label">Remote</div>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+    </div>
+    
+    <div class="status" id="status">Ready to start a call...</div>
+    
+    <div class="room-id" id="roomIdDisplay">
+      Share this Room ID: <span id="roomId"></span>
+    </div>
+    
+    <div class="controls">
+      <button class="btn btn-call" onclick="startCall()">
+        <i class="fas fa-video"></i> Start New Call
+      </button>
+      <button class="btn btn-join" onclick="joinCall()">
+        <i class="fas fa-phone-alt"></i> Join Call
+      </button>
+    </div>
+    
+    <div class="instructions">
+      <h2>How to Use FireCall</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Start a Call</h3>
+          <p>Click "Start New Call" to create a video room</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Share Room ID</h3>
+          <p>Share the generated Room ID with your contact</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Join Call</h3>
+          <p>Recipient enters Room ID and clicks "Join Call"</p>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3>Connect</h3>
+          <p>Video call starts automatically when connected</p>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>FireCall - Secure P2P Video Conferencing | Built with WebRTC & Firebase</p>
+    </footer>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC7h5yMLgLNLkjPXdALhwFga9omSXLCPZk",
       authDomain: "firecall-ar.firebaseapp.com",
       projectId: "firecall-ar",
-      storageBucket: "firecall-ar.firebasestorage.app",
+      storageBucket: "firecall-ar.appspot.com",
       messagingSenderId: "656564158162",
       appId: "1:656564158162:web:6a9b6efc5f02f58eb8370b"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // DOM elements
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const statusDisplay = document.getElementById('status');
+    const roomIdDisplay = document.getElementById('roomIdDisplay');
+    const roomIdSpan = document.getElementById('roomId');
+
+    // Peer connection with ICE servers
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }
+      ]
     });
 
-    let localStream = new MediaStream();
+    let localStream;
     let remoteStream = new MediaStream();
-    document.getElementById("localVideo").srcObject = localStream;
-    document.getElementById("remoteVideo").srcObject = remoteStream;
+    let roomRef;
+    let isCaller = false;
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-      stream.getTracks().forEach(track => {
-        pc.addTrack(track, stream);
-        localStream.addTrack(track);
-      });
-    });
+    // Set remote video stream
+    remoteVideo.srcObject = remoteStream;
 
+    // Handle remote tracks
     pc.ontrack = (event) => {
+      statusDisplay.textContent = 'Connected!';
       event.streams[0].getTracks().forEach(track => {
         remoteStream.addTrack(track);
       });
     };
 
-    let roomRef;
+    // Handle ICE connection state changes
+    pc.oniceconnectionstatechange = () => {
+      if (pc.iceConnectionState === 'disconnected') {
+        statusDisplay.textContent = 'Call ended.';
+        resetUI();
+      }
+    };
 
+    // Initialize media
+    async function initMedia() {
+      try {
+        statusDisplay.textContent = 'Accessing your camera and microphone...';
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+          video: true, 
+          audio: true 
+        });
+        
+        // Add tracks to peer connection
+        localStream.getTracks().forEach(track => {
+          pc.addTrack(track, localStream);
+        });
+        
+        // Set local video stream
+        localVideo.srcObject = localStream;
+        statusDisplay.textContent = 'Media ready!';
+        
+        return true;
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
+        statusDisplay.textContent = 'Could not access camera/microphone. Please check permissions.';
+        return false;
+      }
+    }
+
+    // Start a new call
     window.startCall = async () => {
-      roomRef = doc(collection(db, "rooms"));
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      await setDoc(roomRef, {
-        offer: {
-          type: offer.type,
-          sdp: offer.sdp
-        }
-      });
-
-      pc.onicecandidate = event => {
-        if (event.candidate) {
-          addDoc(collection(roomRef, "callerCandidates"), event.candidate.toJSON());
-        }
-      };
-
-      onSnapshot(roomRef, async (snapshot) => {
-        const data = snapshot.data();
-        if (data?.answer && !pc.currentRemoteDescription) {
-          await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-        }
-      });
-
-      onSnapshot(collection(roomRef, "calleeCandidates"), snapshot => {
-        snapshot.docChanges().forEach(change => {
-          if (change.type === "added") {
-            const candidate = new RTCIceCandidate(change.doc.data());
-            pc.addIceCandidate(candidate);
+      if (!await initMedia()) return;
+      
+      isCaller = true;
+      statusDisplay.textContent = 'Creating a new call room...';
+      
+      try {
+        // Create room document
+        roomRef = doc(collection(db, "rooms"));
+        
+        // Create offer
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        
+        // Save offer to Firestore
+        await setDoc(roomRef, {
+          offer: {
+            type: offer.type,
+            sdp: offer.sdp
+          },
+          createdAt: new Date()
+        });
+        
+        // Handle ICE candidates
+        pc.onicecandidate = async (event) => {
+          if (event.candidate) {
+            await addDoc(collection(roomRef, "callerCandidates"), event.candidate.toJSON());
+          }
+        };
+        
+        // Listen for answer
+        onSnapshot(roomRef, async (snapshot) => {
+          const data = snapshot.data();
+          if (data?.answer && !pc.currentRemoteDescription) {
+            await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
           }
         });
-      });
-
-      alert("🔗 Room ID: " + roomRef.id);
+        
+        // Listen for callee candidates
+        onSnapshot(collection(roomRef, "calleeCandidates"), (snapshot) => {
+          snapshot.docChanges().forEach(async (change) => {
+            if (change.type === "added") {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              try {
+                await pc.addIceCandidate(candidate);
+              } catch (error) {
+                console.error('Error adding ICE candidate:', error);
+              }
+            }
+          });
+        });
+        
+        // Show room ID
+        roomIdSpan.textContent = roomRef.id;
+        roomIdDisplay.style.display = 'block';
+        statusDisplay.textContent = 'Waiting for someone to join...';
+        
+      } catch (error) {
+        console.error('Error starting call:', error);
+        statusDisplay.textContent = 'Error starting call: ' + error.message;
+      }
     };
 
+    // Join an existing call
     window.joinCall = async () => {
+      if (!await initMedia()) return;
+      
       const roomId = prompt("Enter Room ID:");
-      roomRef = doc(db, "rooms", roomId);
-      const roomSnapshot = await getDoc(roomRef);
-
-      const offer = roomSnapshot.data().offer;
-      await pc.setRemoteDescription(new RTCSessionDescription(offer));
-
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      await setDoc(roomRef, {
-        answer: {
-          type: answer.type,
-          sdp: answer.sdp
+      if (!roomId) return;
+      
+      isCaller = false;
+      statusDisplay.textContent = 'Joining call...';
+      
+      try {
+        roomRef = doc(db, "rooms", roomId);
+        const roomSnapshot = await getDoc(roomRef);
+        
+        if (!roomSnapshot.exists()) {
+          alert("Room does not exist!");
+          statusDisplay.textContent = 'Invalid Room ID';
+          return;
         }
-      }, { merge: true });
-
-      pc.onicecandidate = event => {
-        if (event.candidate) {
-          addDoc(collection(roomRef, "calleeCandidates"), event.candidate.toJSON());
+        
+        const offer = roomSnapshot.data().offer;
+        if (!offer) {
+          alert("Invalid room data!");
+          statusDisplay.textContent = 'Invalid room configuration';
+          return;
         }
-      };
-
-      onSnapshot(collection(roomRef, "callerCandidates"), snapshot => {
-        snapshot.docChanges().forEach(change => {
-          if (change.type === "added") {
-            const candidate = new RTCIceCandidate(change.doc.data());
-            pc.addIceCandidate(candidate);
+        
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        
+        await setDoc(roomRef, {
+          answer: {
+            type: answer.type,
+            sdp: answer.sdp
           }
+        }, { merge: true });
+        
+        // Handle ICE candidates
+        pc.onicecandidate = async (event) => {
+          if (event.candidate) {
+            await addDoc(collection(roomRef, "calleeCandidates"), event.candidate.toJSON());
+          }
+        };
+        
+        // Listen for caller candidates
+        onSnapshot(collection(roomRef, "callerCandidates"), (snapshot) => {
+          snapshot.docChanges().forEach(async (change) => {
+            if (change.type === "added") {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              try {
+                await pc.addIceCandidate(candidate);
+              } catch (error) {
+                console.error('Error adding ICE candidate:', error);
+              }
+            }
+          });
         });
-      });
+        
+        statusDisplay.textContent = 'Connecting...';
+        
+      } catch (error) {
+        console.error('Error joining call:', error);
+        statusDisplay.textContent = 'Error joining call: ' + error.message;
+      }
     };
+
+    // Reset UI after call ends
+    function resetUI() {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localVideo.srcObject = null;
+      }
+      
+      remoteStream.getTracks().forEach(track => track.stop());
+      remoteVideo.srcObject = null;
+      
+      roomIdDisplay.style.display = 'none';
+      
+      // Reinitialize for new call
+      localStream = null;
+      remoteStream = new MediaStream();
+      remoteVideo.srcObject = remoteStream;
+    }
   </script>
+  
+  <!-- Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
